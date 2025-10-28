@@ -103,7 +103,7 @@
   const fillEl=document.getElementById("fill");
   const reflection=document.getElementById("reflection");
   const finalDistance=document.getElementById("finalDistance");
-  const PX_PER_METER=1000;
+  const PX_PER_METER=10000;
   const todayKey="scrollmeter-"+new Date().toLocaleDateString("de-DE");
 
   let lastScroll=0,totalScrolled=parseFloat(localStorage.getItem(todayKey))||0,lastTime=Date.now(),speed=0;
@@ -188,3 +188,4 @@
 </script>
 </body>
 </html>
+
