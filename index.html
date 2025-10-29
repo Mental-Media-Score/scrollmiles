@@ -1,297 +1,205 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>ScrollMeter Feed + Reflexion</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>ScrollMeter – digitales Bewegungstagebuch</title>
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #0f0f13;
-      color: #fff;
-      overflow-y: scroll;
-    }
-
-    /* Scroll-Meter-Overlay */
-    #meter {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      backdrop-filter: blur(6px);
-    }
-
-    #bar {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-top: 6px;
-    }
-
-    #fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #ff007a, #ffea00);
-      transition: width 0.2s;
-    }
-
-    /* Fake Feed */
-    .feed {
-      margin-top: 60px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding-bottom: 200px;
-    }
-
-    .card {
-      width: 90%;
-      max-width: 500px;
-      background: #1a1a1f;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    .card img {
-      width: 100%;
-      height: 260px;
-      object-fit: cover;
-    }
-
-    .card .content {
-      padding: 16px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.1rem;
-      color: #ffea00;
-    }
-
-    .card p {
-      font-size: 0.95rem;
-      color: #ccc;
-      line-height: 1.4;
-    }
-
-    .stats {
-      margin-top: 6px;
-      font-size: 0.8rem;
-      color: #888;
-    }
-
-    /* Reflexionsfenster */
-    #reflection {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      color: #fff;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 30px;
-      text-align: center;
-    }
-
-    #reflection h2 {
-      color: #ffea00;
-    }
-
-    #reflection button {
-      margin-top: 10px;
-      background: #ff007a;
-      border: none;
-      padding: 10px 20px;
-      color: #fff;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    textarea {
-      width: 80%;
-      height: 80px;
-      border-radius: 10px;
-      padding: 10px;
-      border: none;
-      resize: none;
-      margin-top: 10px;
-    }
-
-    .feelings button {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin: 5px;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .feelings button:hover {
-      background: #ff007a;
-    }
+    :root { --accent:#ff007a; --yellow:#ffea00; }
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#0f0f13;color:#fff;overflow-y:scroll;}
+    /* Overlay */
+    #meter{position:fixed;top:0;left:0;width:100%;background:rgba(0,0,0,.6);
+      padding:8px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:6px;
+      align-items:center;z-index:10;backdrop-filter:blur(6px);}
+    #bar{width:100%;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+    #fill{height:100%;width:0;background:linear-gradient(90deg,#00ff88,#ffea00,#ff007a);transition:width .2s}
+    /* Feed */
+    .feed{margin-top:80px;display:flex;flex-direction:column;align-items:center;gap:20px;padding:0 0 200px}
+    .card{width:90%;max-width:500px;background:#1a1a1f;border-radius:20px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+    .card img{width:100%;height:260px;object-fit:cover}
+    .content{padding:16px}
+    .content h3{margin:0 0 8px;font-size:1.1rem;color:var(--yellow)}
+    .content p{margin:0;color:#ccc;line-height:1.4}
+    .stats{margin-top:6px;font-size:.8rem;color:#888}
+    /* Summary */
+    #showSummary{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#fff;border:none;
+      padding:12px 20px;border-radius:50px;font-weight:700;cursor:pointer;box-shadow:0 0 10px rgba(255,0,122,.4);z-index:15}
+    #summary{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20;
+      display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:30px}
+    #summary h2{color:var(--yellow);margin-top:0}
+    #summary p{margin:.35rem 0}
+    #evaluation{margin-top:.6rem;font-weight:600}
+    #closeSummary{margin-top:16px;background:var(--accent);border:none;padding:10px 20px;color:#fff;border-radius:8px;cursor:pointer}
   </style>
 </head>
 <body>
 
-  <!-- Scroll-Anzeige -->
+  <!-- Overlay -->
   <div id="meter">
     <div>
-      Heute gescrollt: <span id="distance">0</span> m |
-      Geschwindigkeit: <span id="speed">0</span> px/s
+      Heute: <span id="distance">0.00</span> m |
+      Speed: <span id="speed">0.00</span> m/s |
+      Pace: <span id="pace">–</span> /km
     </div>
+    <div id="bar"><div id="fill"></div></div>
   </div>
-  <div id="bar"><div id="fill"></div></div>
 
-  <!-- Fake Feed -->
+  <!-- Feed -->
   <div class="feed" id="feed"></div>
 
-  <!-- Reflexionsfenster -->
-  <div id="reflection">
-    <h2>🧠 Dein Scroll-Tag</h2>
-    <p>Du bist heute <b id="finalDistance">0 m</b> durch Inhalte gescrollt.</p>
-    <p>Wie fühlst du dich jetzt?</p>
-    <div class="feelings">
-      <button data-feel="😊">😊 Leicht</button>
-      <button data-feel="😐">😐 Neutral</button>
-      <button data-feel="😞">😞 Erschöpft</button>
-    </div>
-    <p>Was ist dir im Gedächtnis geblieben?</p>
-    <textarea id="note" placeholder="Dein Gedanke zum Tag..."></textarea>
-    <button id="saveReflection">Speichern & schließen</button>
+  <!-- Button & Summary -->
+  <button id="showSummary">📊 Tagesbilanz</button>
+
+  <div id="summary">
+    <h2>📅 Deine Scroll-Bilanz heute</h2>
+    <p><b>Distanz:</b> <span id="sumDistance">0.00</span> m</p>
+    <p><b>Ø Geschwindigkeit:</b> <span id="sumSpeed">0.00</span> m/s</p>
+    <p><b>Ø Pace:</b> <span id="sumPace">–</span> min/km</p>
+    <p id="evaluation"></p>
+    <p style="margin-top:8px;color:#aaa;font-size:.9rem">(Joggen ≈ 6:00 min/km)</p>
+    <button id="closeSummary">Schließen</button>
   </div>
 
   <script>
+    // ===== Kalibrierung (Gerät & Pixeldichte) =====
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const dpr = window.devicePixelRatio || 1;
+    // Basis: ~10k CSS-px ≈ 1 m (Heuristik). Mobile scrollt „gröber“, Desktop „feiner“.
+    const basePxPerM = isMobile ? 9000 : 12000;
+    const PX_PER_METER = basePxPerM / dpr;
+
+    // ===== Elemente =====
     const distanceEl = document.getElementById("distance");
     const speedEl = document.getElementById("speed");
+    const paceEl = document.getElementById("pace");
     const fillEl = document.getElementById("fill");
-    const reflection = document.getElementById("reflection");
-    const finalDistance = document.getElementById("finalDistance");
 
-    const PX_PER_METER = 10000; // realistischere Umrechnung
+    const sumDistance = document.getElementById("sumDistance");
+    const sumSpeed = document.getElementById("sumSpeed");
+    const sumPace = document.getElementById("sumPace");
+    const evaluation = document.getElementById("evaluation");
+
+    const summary = document.getElementById("summary");
+    const showSummaryBtn = document.getElementById("showSummary");
+    const closeSummaryBtn = document.getElementById("closeSummary");
+
+    // ===== Tages-Storage =====
     const todayKey = "scrollmeter-" + new Date().toLocaleDateString("de-DE");
+    let totalPx = parseFloat(localStorage.getItem(todayKey)) || 0;
 
-    let lastScroll = 0;
-    let totalScrolled = parseFloat(localStorage.getItem(todayKey)) || 0;
-    let lastTime = Date.now();
-    let speed = 0;
-    let reflectionTimer = null;
+    // ===== Laufende Messung =====
+    let lastScroll = window.scrollY;
+    let lastTime = performance.now();
+    let samples = 0;
+    let sumSpeedMs = 0; // m/s aufsummiert für Durchschnitt
 
-    window.addEventListener("scroll", () => {
-      const current = window.scrollY;
-      const delta = Math.max(0, current - lastScroll);
-      lastScroll = current;
-
-      const now = Date.now();
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-      speed = delta / dt;
-
-      totalScrolled += delta;
-      const meters = totalScrolled / PX_PER_METER;
-      const percent = Math.min((meters / 5000) * 100, 100);
-
-      fillEl.style.width = percent + "%";
-      localStorage.setItem(todayKey, totalScrolled);
-
-      distanceEl.textContent = meters.toFixed(2);
-      speedEl.textContent = speed.toFixed(0);
-
-      // Reflexion nach 1 km, aber mit 25s Verzögerung
-      if (meters >= 1 && !window.reflectionScheduled) {
-        window.reflectionScheduled = true;
-        reflectionTimer = setTimeout(showReflection, 25000);
+    function updateOverlay(metersTotal, instSpeed) {
+      // Pace aus m/s: secPerKm = 1000 / (m/s)
+      let paceText = "–";
+      if (instSpeed > 0) {
+        const secPerKm = 1000 / instSpeed;
+        const mm = Math.floor(secPerKm / 60);
+        const ss = Math.floor(secPerKm % 60).toString().padStart(2, "0");
+        paceText = `${mm}:${ss}`;
       }
-    });
+      distanceEl.textContent = metersTotal.toFixed(2);
+      speedEl.textContent = instSpeed.toFixed(2);
+      paceEl.textContent = paceText;
 
-    function showReflection() {
-      finalDistance.textContent = (totalScrolled / PX_PER_METER).toFixed(2) + " m";
-      reflection.style.display = "flex";
+      // Fortschritt gg. „Tagesziel“ 5 km (nur Visual)
+      const percent = Math.min((metersTotal / 5000) * 100, 100);
+      fillEl.style.width = percent + "%";
     }
 
-    document.getElementById("saveReflection").addEventListener("click", () => {
-      const note = document.getElementById("note").value;
-      const feel = localStorage.getItem("feel") || "";
-      const todayReport = {
-        date: new Date().toLocaleDateString("de-DE"),
-        distance: totalScrolled,
-        feel,
-        note
-      };
-      localStorage.setItem("scrollReflection", JSON.stringify(todayReport));
-      alert("Reflexion gespeichert. Morgen geht's weiter bewusster 🌱");
-      reflection.style.display = "none";
+    window.addEventListener("scroll", () => {
+      const now = performance.now();
+      let dt = (now - lastTime) / 1000;
+      if (dt <= 0) dt = 0.016; // Schutz
+
+      const current = window.scrollY;
+      const deltaPx = Math.abs(current - lastScroll); // beide Richtungen zählen
+      lastScroll = current;
+      lastTime = now;
+
+      totalPx += deltaPx;
+      localStorage.setItem(todayKey, totalPx);
+
+      const metersDelta = deltaPx / PX_PER_METER;     // m (dieses Intervall)
+      const metersTotal = totalPx / PX_PER_METER;     // m gesamt
+      const instSpeed = metersDelta / dt;             // m/s
+
+      // Samples für Tagesdurchschnitt
+      if (isFinite(instSpeed) && instSpeed >= 0) {
+        sumSpeedMs += instSpeed;
+        samples++;
+      }
+
+      updateOverlay(metersTotal, instSpeed);
     });
 
-    document.querySelectorAll(".feelings button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        localStorage.setItem("feel", btn.dataset.feel);
-        document.querySelectorAll(".feelings button").forEach(b => b.style.background = "rgba(255,255,255,0.1)");
-        btn.style.background = "#ff007a";
-      });
+    // ===== Summary =====
+    showSummaryBtn.addEventListener("click", () => {
+      const metersTotal = totalPx / PX_PER_METER;
+      const avgSpeed = samples > 0 ? (sumSpeedMs / samples) : 0; // m/s
+      const secPerKm = avgSpeed > 0 ? 1000 / avgSpeed : 0;
+      const mm = Math.floor(secPerKm / 60);
+      const ss = Math.floor(secPerKm % 60).toString().padStart(2, "0");
+      const paceText = avgSpeed > 0 ? `${mm}:${ss}` : "–";
+
+      sumDistance.textContent = metersTotal.toFixed(2);
+      sumSpeed.textContent = avgSpeed.toFixed(2);
+      sumPace.textContent = paceText;
+
+      // Bewertungsskala je nach Pace
+      let fb = "🟣 Noch keine Bewegung erfasst.";
+      if (secPerKm > 0) {
+        if (secPerKm > 600) fb = "🟢 Entspannt unterwegs – digital entschleunigt.";
+        else if (secPerKm > 300) fb = "🟡 Gute Balance – bewusster Informationsfluss.";
+        else if (secPerKm > 120) fb = "🟠 Flott durch den Feed – kurze Pausen tun gut.";
+        else fb = "🔴 Digitaler Sprint – gönn dir Erholung!";
+      }
+      evaluation.textContent = fb;
+      summary.style.display = "flex";
     });
 
-    // Fake Feed generieren (3x länger)
+    closeSummaryBtn.addEventListener("click", () => {
+      summary.style.display = "none";
+    });
+
+    // ===== Fake-Feed generieren (75 Karten) =====
     const feed = document.getElementById("feed");
     const texts = [
       "Warum wir scrollen, obwohl wir müde sind.",
-      "10 Tricks, wie du Social-Media-Müdigkeit erkennst.",
-      "Katzenvideo des Tages – einfach zum Lächeln!",
+      "10 Tricks gegen Social-Media-Müdigkeit.",
+      "Katzenvideo des Tages 🐾",
       "Mentale Gesundheit braucht Medienbewusstsein.",
       "Wie Worte wirken: kleine Änderungen, große Effekte.",
-      "Ein Blick in die Zukunft des digitalen Wohlbefindens.",
-      "Wenn Algorithmen deine Aufmerksamkeit wollen – und du Nein sagst.",
+      "Wenn Algorithmen deine Aufmerksamkeit wollen.",
       "Was dein Handy über dein Mindset verrät.",
-      "Die Evolution des Scrollens – von Zeitung zu TikTok.",
+      "Evolution des Scrollens – Zeitung → TikTok.",
       "Eine Minute Achtsamkeit statt 100 Meter Scroll."
     ];
-
-    for (let i = 0; i < 75; i++) {  // 3x so viele Karten
-      const c = document.createElement("div");
-      c.className = "card";
-
+    for (let i = 0; i < 75; i++) {
+      const card = document.createElement("div");
+      card.className = "card";
       const img = document.createElement("img");
       img.src = `https://picsum.photos/seed/${i}/600/400`;
-
       const cont = document.createElement("div");
       cont.className = "content";
-
       const h = document.createElement("h3");
       h.textContent = texts[i % texts.length];
-
       const p = document.createElement("p");
       p.textContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer gravida neque nec ultricies tempor.";
-
       const s = document.createElement("div");
       s.className = "stats";
-      s.textContent = "❤️ " + Math.floor(Math.random() * 900 + 100) + " Likes 💬 " + Math.floor(Math.random() * 90 + 10) + " Kommentare";
-
-      cont.appendChild(h);
-      cont.appendChild(p);
-      cont.appendChild(s);
-      c.appendChild(img);
-      c.appendChild(cont);
-      feed.appendChild(c);
+      s.textContent = `❤️ ${Math.floor(Math.random()*900+100)} Likes   💬 ${Math.floor(Math.random()*90+10)} Kommentare`;
+      cont.append(h,p,s);
+      card.append(img,cont);
+      feed.append(card);
     }
+
+    // Initiale Anzeige (ohne Scroll)
+    updateOverlay((totalPx / PX_PER_METER), 0);
   </script>
 </body>
 </html>
